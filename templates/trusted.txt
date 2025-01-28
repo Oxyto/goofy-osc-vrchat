@@ -1,3 +1,4 @@
 🎶 Imagine - Tu racontes ta vie dans la chatbox (real) 🎧
 [playing now{{ '.' * (time.time().__int__() % 15 // 5 + 1) }}]
 ⏳ {{ "%02d:%02d"|format(time.localtime().tm_hour, time.localtime().tm_min) }} ⏳
+ta bouche.

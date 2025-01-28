@@ -1,1 +1,1 @@
-⌛ {{ "%02d:%02d"|format(time.localtime().tm_hour, time.localtime().tm_min) }} ⌛
+⏳ {{ "%02d:%02d"|format(time.localtime().tm_hour, time.localtime().tm_min) }} ⏳
