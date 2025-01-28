@@ -1,0 +1,3 @@
+GPU [RTX 5090]: {{ "%3d%%, Temp: %3d°C"|format(random.randint(10, 15), random.randint(30, 40)) }}
+CPU [Ryzen Threadripper Pro 7995wx]: {{ "%3d%%, Temp: %3d°C"|format(random.randint(1, 5), random.randint(80, 5000)) }}
+RAM [Corsair 256Go]: {{ "%3d%%, Temp: %3d°C"|format(random.randint(2, 8), random.randint(-273, -200)) }}

@@ -1,0 +1,3 @@
+GPU [Intel UHD Graphics]: {{ "%3d%%, Temp: %3d°C"|format(random.randint(150, 300), random.randint(80, 150)) }}
+CPU [Intel Celeron n4120]: {{ "%3d%%, Temp: %3d°C"|format(random.randint(150, 300), random.randint(80, 150)) }}
+RAM [Samsung 512Mo]: {{ "%3d%%, Temp: %3d°C"|format(random.randint(150, 300), random.randint(80, 150)) }}
