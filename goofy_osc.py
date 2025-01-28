@@ -5,29 +5,10 @@ import os
 import time
 import ctypes
 import jinja2
+import itertools
 from pythonosc import udp_client
-from itertools import repeat
 
-# Goofy messages here
-MESSAGES = [
-    """\
-GPU [RTX 4090]: {:2d}%, Temp: {:2d}°C
-CPU [Ryzen Threadripper Pro 7995wx]: {:2d}%, Temp: {:2d}°C
-RAM [Corsair 128Go]: {:2d}%\
-  """,
-    """\
-GPU [Intel UHD Graphics]: {:2d}%, Temp: {:2d}°C
-CPU [Intel Celeron n4120]: {:2d}%, Temp: {:2d}°C
-RAM [Samsung 512Mo]: {:2d}%\
-  """,
-    """\
-⌛ {:02d}:{:02d} ⌛\
-  """,
-    """\
-♥ {:3d} BPM ♥\
-  """
-]
-RAND_RANGE = 500
+
 TIMEOUT_SEC = 5
 
 
@@ -49,35 +30,17 @@ class GoofyOSC:
     )
     self.message.value = b'[placeholder]'
 
-  def runner_statmsg(self, msg):
-    return str(msg, 'utf-8').format(
-        *(random.randint(0, RAND_RANGE) for _ in range(5))
-    )
-
-  def runner_time(self, msg):
-    return str(msg, 'utf-8').format(
-        time.localtime()[3], time.localtime()[4]
-    )
-
-  def runner_bpm(self, msg):
-    return str(msg, 'utf-8').format(
-        random.randint(20, RAND_RANGE)
-    )
-
   def runner(self):
     try:
       while True:
         match self.message_id.value:
-          case 1 | 2:
-            output_message = self.runner_statmsg(self.message.value)
-          case 3:
-            output_message = self.runner_time(self.message.value)
-          case 4:
-            output_message = self.runner_bpm(self.message.value)
-          case 5:
-            output_message = jinja2.Template(str(self.message.value, "utf-8")).render(os=os,time=time,random=random)
-          case _:
+          case 0:
             output_message = str(self.message.value, 'utf-8')
+          case 1:
+            output_message = jinja2.Template(
+                str(self.message.value, "utf-8")).render(os=os, time=time, random=random)
+          case _:
+            raise BaseException('[!] Error: Invalid mode.')
         self.client.send_message(
             '/chatbox/input', (output_message, True))
         time.sleep(TIMEOUT_SEC)
@@ -113,30 +76,26 @@ class GoofyOSC:
 
   def change(self, args: str):
     if len(args) == 0:
-      print('[!] Missing message number')
+      print('[!] Missing mode number')
       return
     try:
       nb = int(args[0])
+
+      match nb:
+        case 0:
+          print('[*] Default mode.')
+        case 1:
+          print('[*] Formated mode.')
+        case _:
+          print('[!] Invalid mode.')
+          return
       self.message_id.value = nb
-      if nb == 0:
-        self.message.value = b'[placeholder]'
-        print('[*] Default preset.')
-        return
-      if nb == 5:
-        print('[*] Enable formated string.')
-        return
-      self.message.value = bytes(MESSAGES[nb - 1], 'utf-8')
+      
     except ValueError as e:
       print('[!] Value must be a positive integer.')
       print(str(e))
-    except IndexError:
-      print(
-          f'[!] Invalid index, must be between 0 or less and {len(MESSAGES) - 1}'
-      )
 
   def write_block(self, args: str):
-    if self.message_id.value != 5:
-      self.message_id.value = 0
     self.message.value = b''
     while (msg := input('[W] > ')) != '.':
       self.message.value += bytes(msg, 'utf-8') + b'\n'
@@ -146,8 +105,6 @@ class GoofyOSC:
     if len(args) == 0:
       print('[!] You must supply a message.')
       return
-    if self.message_id.value != 5:
-      self.message_id.value = 0
     self.message.value = bytes(' '.join(args), 'utf-8')
 
   def save_to_file(self, args: str):
@@ -189,7 +146,7 @@ class GoofyOSC:
 
       if cmd in ('h', 'help', '?'):
         print(
-            '[*] Usage: help, start, stat, kill, stop, change, quit, write, print, clear, load, save'
+            '[*] Usage: help, start, stat, kill, stop, change, quit, write(_block), print, clear, load, save'
         )
         continue
       if cmd in ('p', 'print'):
