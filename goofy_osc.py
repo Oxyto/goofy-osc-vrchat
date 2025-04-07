@@ -236,6 +236,12 @@ class GoofyOSC:
         '''
         exit()
 
+    def change_dir(self, args: list[str]):
+        '''
+        Changes the program directory.
+        '''
+        os.chdir(args[0])
+
     def cli(self):
         '''
         The console interface of the application.
@@ -258,6 +264,7 @@ class GoofyOSC:
             'load': self.load_file,
             'k': self.kill,
             'kill': self.kill,
+            'cd': self.change_dir,
             'c': self.change,
             'change': self.change,
             'cl': self.clear,
@@ -269,7 +276,12 @@ class GoofyOSC:
             'quit': self.quit
         }
         while True:
-            tokens = input('> ').split()
+            inp = input('> ')
+            if inp.startswith('!'):
+                os.system(inp[1:])
+                continue
+
+            tokens = inp.split()
 
             if not tokens:
                 continue
