@@ -240,7 +240,10 @@ class GoofyOSC:
         '''
         Changes the program directory.
         '''
-        os.chdir(args[0])
+        try:
+            os.chdir(args[0])
+        except FileNotFoundError:
+            print(f'[!] Directory not found. ({args[0]})')
 
     def cli(self):
         '''
